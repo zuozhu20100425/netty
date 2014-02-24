@@ -17,6 +17,7 @@ package io.netty.handler.sasl;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOutboundHandler;
@@ -87,9 +88,8 @@ public abstract class SaslServerHandler extends ChannelInboundHandlerAdapter {
         } catch (SaslException e) {
             Object errorMsg = newErrorMessage(e);
             if (errorMsg != null) {
-                ctx.writeAndFlush(newErrorMessage(e));
+                ctx.writeAndFlush(errorMsg).addListener(ChannelFutureListener.CLOSE);
             }
-            ctx.close();
         }
     }
 
