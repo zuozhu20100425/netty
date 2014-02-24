@@ -47,7 +47,7 @@ import java.util.List;
  * it is not needed anymore.
  *
  */
-public abstract class SaslServerHandler extends ChannelInboundHandlerAdapter {
+public abstract class SaslServerHandler<M> extends ChannelInboundHandlerAdapter {
 
     private static final String AUTH_INT = "auth-int";
     private static final String AUTO_CONF = "auth-conf";
@@ -99,7 +99,7 @@ public abstract class SaslServerHandler extends ChannelInboundHandlerAdapter {
      * @param challenge     the {@link ByteBuf} that holds the challenge data.
      * @return successMsg   the message
      */
-    protected abstract Object newSuccessMessage(ByteBuf challenge);
+    protected abstract M newSuccessMessage(ByteBuf challenge);
 
     /**
      * Creates a new message which signals the remote peer that the negation needs more data to process.
@@ -107,7 +107,7 @@ public abstract class SaslServerHandler extends ChannelInboundHandlerAdapter {
      * @param challenge     the {@link ByteBuf} that holds the challenge data.
      * @return continueMsg   the message
      */
-    protected abstract Object newContinueMessage(ByteBuf challenge);
+    protected abstract M newContinueMessage(ByteBuf challenge);
 
     /**
      * Creates a new message which signals the remote peer that the negation failed.
@@ -115,7 +115,7 @@ public abstract class SaslServerHandler extends ChannelInboundHandlerAdapter {
      * @param e             the {@link SaslException} tat caused the error.
      * @return continueMsg  the message
      */
-    protected abstract Object newErrorMessage(SaslException e);
+    protected abstract M newErrorMessage(SaslException e);
 
     /**
      * Read all readable bytes of the {@link ByteBuf} into a byte array and release the buffer.
