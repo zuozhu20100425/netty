@@ -52,7 +52,7 @@ public abstract class SaslServerHandler<M> extends ChannelInboundHandlerAdapter 
     private static final String AUTH_INT = "auth-int";
     private static final String AUTO_CONF = "auth-conf";
 
-    private final SaslServer server;
+    private SaslServer server;
 
     public SaslServerHandler(SaslServer server) {
         this.server = server;
@@ -75,6 +75,8 @@ public abstract class SaslServerHandler<M> extends ChannelInboundHandlerAdapter 
                 if (qop != null
                         && (qop.equalsIgnoreCase(AUTH_INT)
                         || qop.equalsIgnoreCase(AUTO_CONF))) {
+                    SaslServer server = this.server;
+                    this.server = null;
                     // Replace this handler now with the QopHandler
                     // This is mainly done as the QopHandler itself will not block at all and so we can
                     // get rid of the usage of the EventExecutorGroup after the negation took place.
@@ -90,6 +92,14 @@ public abstract class SaslServerHandler<M> extends ChannelInboundHandlerAdapter 
             if (errorMsg != null) {
                 ctx.writeAndFlush(errorMsg).addListener(ChannelFutureListener.CLOSE);
             }
+        }
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        super.handlerRemoved(ctx);
+        if (server != null) {
+            server.dispose();
         }
     }
 
@@ -259,6 +269,12 @@ public abstract class SaslServerHandler<M> extends ChannelInboundHandlerAdapter 
         @Override
         public void flush(ChannelHandlerContext ctx) throws Exception {
             ctx.flush();
+        }
+
+        @Override
+        protected void handlerRemoved0(ChannelHandlerContext ctx) throws Exception {
+            super.handlerRemoved0(ctx);
+            server.dispose();
         }
     }
 }
