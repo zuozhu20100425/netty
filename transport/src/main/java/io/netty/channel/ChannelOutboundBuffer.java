@@ -207,7 +207,7 @@ public class ChannelOutboundBuffer {
      * Increment the pending bytes which will be written at some point.
      * This method is thread-safe!
      */
-    final void incrementPendingOutboundBytes(int size) {
+    public final void incrementPendingOutboundBytes(long size) {
         // Cache the channel and check for null to make sure we not produce a NPE in case of the Channel gets
         // recycled while process this method.
         Channel channel = this.channel;
@@ -227,7 +227,7 @@ public class ChannelOutboundBuffer {
      * Decrement the pending bytes which will be written at some point.
      * This method is thread-safe!
      */
-    final void decrementPendingOutboundBytes(int size) {
+    public final void decrementPendingOutboundBytes(long size) {
         // Cache the channel and check for null to make sure we not produce a NPE in case of the Channel gets
         // recycled while process this method.
         Channel channel = this.channel;

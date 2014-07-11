@@ -16,6 +16,7 @@
 package io.netty.handler.codec;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteWriter;
 import io.netty.util.internal.EmptyArrays;
 
 import java.nio.ByteBuffer;
@@ -643,7 +644,7 @@ public final class AsciiString implements CharSequence, Comparable<CharSequence>
      * @param length
      *            the number of characters to copy.
      */
-    public void copy(int srcIdx, ByteBuf dst, int length) {
+    public void copy(int srcIdx, ByteWriter dst, int length) {
         if (dst == null) {
             throw new NullPointerException("dst");
         }

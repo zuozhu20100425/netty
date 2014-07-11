@@ -16,8 +16,10 @@
 package io.netty.handler.codec.http;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteWriter;
 import io.netty.handler.codec.AsciiString;
 import io.netty.handler.codec.DefaultTextHeaders;
+import io.netty.handler.codec.MessageToBufferedByteEncoder;
 import io.netty.handler.codec.TextHeaders;
 
 import java.util.Calendar;
@@ -189,8 +191,8 @@ public class DefaultHttpHeaders extends HttpHeaders {
         return headers.names();
     }
 
-    void encode(ByteBuf buf) {
-        headers.forEachEntry(new HttpHeadersEncoder(buf));
+    void encode(ByteWriter writer) {
+        headers.forEachEntry(new HttpHeadersEncoder(writer));
     }
 
     static class NonValidatingTextHeaders extends DefaultTextHeaders {

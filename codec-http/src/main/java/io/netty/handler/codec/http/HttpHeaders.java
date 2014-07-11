@@ -15,7 +15,7 @@
  */
 package io.netty.handler.codec.http;
 
-import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteWriter;
 import io.netty.handler.codec.AsciiString;
 
 import java.text.ParseException;
@@ -1193,37 +1193,37 @@ public abstract class HttpHeaders implements Iterable<Map.Entry<String, String>>
         return AsciiString.equalsIgnoreCase(name1, name2);
     }
 
-    static void encode(HttpHeaders headers, ByteBuf buf) {
+    static void encode(HttpHeaders headers, ByteWriter writer) {
         if (headers instanceof DefaultHttpHeaders) {
-            ((DefaultHttpHeaders) headers).encode(buf);
+            ((DefaultHttpHeaders) headers).encode(writer);
         } else {
             for (Entry<String, String> header: headers) {
-                encode(header.getKey(), header.getValue(), buf);
+                encode(header.getKey(), header.getValue(), writer);
             }
         }
     }
 
     @SuppressWarnings("deprecation")
-    private static void encode(CharSequence key, CharSequence value, ByteBuf buf) {
-        encodeAscii(key, buf);
-        buf.writeBytes(HEADER_SEPERATOR);
-        encodeAscii(value, buf);
-        buf.writeBytes(CRLF);
+    private static void encode(CharSequence key, CharSequence value, ByteWriter writer) {
+        encodeAscii0(key, writer);
+        writer.writeBytes(HEADER_SEPERATOR);
+        encodeAscii(value, writer);
+        writer.writeBytes(CRLF);
     }
 
     @Deprecated
-    public static void encodeAscii(CharSequence seq, ByteBuf buf) {
+    public static void encodeAscii(CharSequence seq, ByteWriter writer) {
         if (seq instanceof AsciiString) {
-            ((AsciiString) seq).copy(0, buf, seq.length());
+            ((AsciiString) seq).copy(0, writer, seq.length());
         } else {
-            encodeAscii0(seq, buf);
+            encodeAscii0(seq, writer);
         }
     }
 
-    static void encodeAscii0(CharSequence seq, ByteBuf buf) {
+    static void encodeAscii0(CharSequence seq, ByteWriter writer) {
         int length = seq.length();
         for (int i = 0 ; i < length; i++) {
-            buf.writeByte((byte) seq.charAt(i));
+            writer.writeByte((byte) seq.charAt(i));
         }
     }
 

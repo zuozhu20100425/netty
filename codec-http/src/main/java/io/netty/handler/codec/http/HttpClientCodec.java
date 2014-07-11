@@ -102,12 +102,12 @@ public final class HttpClientCodec extends ChannelHandlerAppender {
 
         @Override
         protected void encode(
-                ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
+                ChannelHandlerContext ctx, Object msg, HttpRequestEncoder.Encoder encoder) throws Exception {
             if (msg instanceof HttpRequest && !done) {
                 queue.offer(((HttpRequest) msg).method());
             }
 
-            super.encode(ctx, msg, out);
+            super.encode(ctx, msg, encoder);
 
             if (failOnMissingResponse) {
                 // check if the request is chunked if so do not increment
