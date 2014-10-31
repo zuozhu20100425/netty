@@ -17,13 +17,13 @@ package io.netty.handler.codec.http.websocketx;
 
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpHeaders.Names;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 
-import static io.netty.handler.codec.http.HttpHeaders.Values.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
 
 public class WebSocketRequestBuilder {
@@ -102,22 +102,22 @@ public class WebSocketRequestBuilder {
         HttpHeaders headers = req.headers();
 
         if (host != null) {
-            headers.set(Names.HOST, host);
+            headers.set(HttpHeaderNames.HOST, host);
         }
         if (upgrade != null) {
-            headers.set(Names.UPGRADE, upgrade);
+            headers.set(HttpHeaderNames.UPGRADE, upgrade);
         }
         if (connection != null) {
-            headers.set(Names.CONNECTION, connection);
+            headers.set(HttpHeaderNames.CONNECTION, connection);
         }
         if (key != null) {
-            headers.set(Names.SEC_WEBSOCKET_KEY, key);
+            headers.set(HttpHeaderNames.SEC_WEBSOCKET_KEY, key);
         }
         if (origin != null) {
-            headers.set(Names.SEC_WEBSOCKET_ORIGIN, origin);
+            headers.set(HttpHeaderNames.SEC_WEBSOCKET_ORIGIN, origin);
         }
         if (version != null) {
-            headers.set(Names.SEC_WEBSOCKET_VERSION, version.toHttpHeaderValue());
+            headers.set(HttpHeaderNames.SEC_WEBSOCKET_VERSION, version.toHttpHeaderValue());
         }
         return req;
     }
@@ -127,7 +127,7 @@ public class WebSocketRequestBuilder {
                 .method(HttpMethod.GET)
                 .uri("/test")
                 .host("server.example.com")
-                .upgrade(WEBSOCKET.toLowerCase().toString())
+                .upgrade(HttpHeaderValues.WEBSOCKET.toString())
                 .key("dGhlIHNhbXBsZSBub25jZQ==")
                 .origin("http://example.com")
                 .version13()
