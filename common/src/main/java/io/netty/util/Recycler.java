@@ -51,10 +51,24 @@ public abstract class Recycler<T> {
     private static final int INITIAL_CAPACITY;
 
     static {
-        // In the future, we might have different maxCapacity for different object types.
-        // e.g. io.netty.recycler.maxCapacity.writeTask
-        //      io.netty.recycler.maxCapacity.outboundBuffer
-        int maxCapacity = SystemPropertyUtil.getInt("io.netty.recycler.maxCapacity", DEFAULT_INITIAL_MAX_CAPACITY);
+        int maxCapacity;
+
+        // Using String here so we can easily detect if the user specified it or not.
+        String maxCapacityString = SystemPropertyUtil.get("io.netty.recycler.maxCapacity.default", null);
+        if (maxCapacityString != null) {
+            logger.info("-Dio.netty.recycler.maxCapacity.default is deprecated" +
+                    " please use -Dio.netty.recycler.maxCapacity");
+            try {
+                maxCapacity = Integer.parseInt(maxCapacityString);
+            } catch (NumberFormatException ignore) {
+                maxCapacity = DEFAULT_INITIAL_MAX_CAPACITY;
+            }
+        } else {
+            // In the future, we might have different maxCapacity for different object types.
+            // e.g. io.netty.recycler.maxCapacity.writeTask
+            //      io.netty.recycler.maxCapacity.outboundBuffer
+            maxCapacity = SystemPropertyUtil.getInt("io.netty.recycler.maxCapacity", DEFAULT_INITIAL_MAX_CAPACITY);
+        }
         if (maxCapacity <= 0) {
             // TODO: Some arbitrary large number - should adjust as we get more production experience.
             maxCapacity = 262144;
