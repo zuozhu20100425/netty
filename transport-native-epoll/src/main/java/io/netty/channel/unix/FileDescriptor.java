@@ -79,7 +79,7 @@ public class FileDescriptor {
                 return;
             }
             // Once a close operation happens, the channel is considered shutdown.
-            if (casState(state, state | STATE_ALL_MASK)) {
+            if (casState(state, STATE_ALL_MASK)) {
                 break;
             }
         }
