@@ -16,6 +16,7 @@
 package io.netty.buffer;
 
 import io.netty.util.ByteProcessor;
+import io.netty.util.CharsetUtil;
 import io.netty.util.IllegalReferenceCountException;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.internal.PlatformDependent;
@@ -484,6 +485,19 @@ public abstract class AbstractByteBuf extends ByteBuf {
     }
 
     @Override
+    public CharSequence getCharSequence(int index, int length, Charset charset) {
+        // TODO: We could optimize this for UTF8 and US_ASCII
+        return toString(index, length, charset);
+    }
+
+    @Override
+    public CharSequence readCharSequence(int length, Charset charset) {
+        CharSequence sequence = getCharSequence(readerIndex, length, charset);
+        readerIndex += length;
+        return sequence;
+    }
+
+    @Override
     public ByteBuf setByte(int index, int value) {
         checkIndex(index);
         _setByte(index, value);
@@ -647,6 +661,24 @@ public abstract class AbstractByteBuf extends ByteBuf {
             }
         }
         return this;
+    }
+
+    @Override
+    public int setCharSequence(int index, CharSequence sequence, Charset charset) {
+        if (charset.equals(CharsetUtil.UTF_8)) {
+            int len = sequence.length();
+            ensureWritable(ByteBufUtil.MAX_BYTES_PER_CHAR_UTF8 * len);
+            return ByteBufUtil.writeUtf8(this, index, sequence, len);
+        }
+        if (charset.equals(CharsetUtil.US_ASCII)) {
+            int len = sequence.length();
+            ensureWritable(len);
+            return ByteBufUtil.writeAscii(this, index, sequence, len);
+        }
+        byte[] bytes = sequence.toString().getBytes(charset);
+        ensureWritable(bytes.length);
+        setBytes(index, bytes);
+        return bytes.length;
     }
 
     @Override
@@ -1109,6 +1141,13 @@ public abstract class AbstractByteBuf extends ByteBuf {
         }
         writerIndex = wIndex;
         return this;
+    }
+
+    @Override
+    public int writeCharSequence(CharSequence sequence, Charset charset) {
+        int written = setCharSequence(writerIndex, sequence, charset);
+        writerIndex += written;
+        return written;
     }
 
     @Override

@@ -16,6 +16,7 @@
 package io.netty.buffer;
 
 import io.netty.util.ByteProcessor;
+import io.netty.util.CharsetUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
+import java.nio.charset.Charset;
 
 /**
  * A derived buffer which exposes its parent's sub-region only.  It is
@@ -265,6 +267,12 @@ public class SlicedByteBuf extends AbstractDerivedByteBuf {
     }
 
     @Override
+    public CharSequence getCharSequence(int index, int length, Charset charset) {
+        checkIndex0(index, length);
+        return buffer.getCharSequence(idx(index), length, charset);
+    }
+
+    @Override
     protected void _setByte(int index, int value) {
         unwrap().setByte(idx(index), value);
     }
@@ -384,6 +392,24 @@ public class SlicedByteBuf extends AbstractDerivedByteBuf {
         checkIndex0(index, src.remaining());
         unwrap().setBytes(idx(index), src);
         return this;
+    }
+
+    @Override
+    public int setCharSequence(int index, CharSequence sequence, Charset charset) {
+        if (charset.equals(CharsetUtil.UTF_8)) {
+            int len = sequence.length();
+            checkIndex0(index, ByteBufUtil.MAX_BYTES_PER_CHAR_UTF8 * len);
+            return ByteBufUtil.writeUtf8(this, idx(index), sequence, len);
+        }
+        if (charset.equals(CharsetUtil.US_ASCII)) {
+            int len = sequence.length();
+            checkIndex0(index, len);
+            return ByteBufUtil.writeAscii(this, idx(index), sequence, len);
+        }
+        byte[] bytes = sequence.toString().getBytes(charset);
+        checkIndex0(index, bytes.length);
+        buffer.setBytes(idx(index), bytes);
+        return bytes.length;
     }
 
     @Override

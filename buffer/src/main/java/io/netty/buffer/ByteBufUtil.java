@@ -60,7 +60,7 @@ public final class ByteBufUtil {
     private static final byte WRITE_UTF_UNKNOWN = (byte) '?';
     private static final int MAX_CHAR_BUFFER_SIZE;
     private static final int THREAD_LOCAL_BUFFER_SIZE;
-    private static final int MAX_BYTES_PER_CHAR_UTF8 =
+    static final int MAX_BYTES_PER_CHAR_UTF8 =
             (int) CharsetUtil.encoder(CharsetUtil.UTF_8).maxBytesPerChar();
 
     static final ByteBufAllocator DEFAULT_ALLOCATOR;
@@ -382,7 +382,10 @@ public final class ByteBufUtil {
 
         for (;;) {
             if (buf instanceof AbstractByteBuf) {
-                return writeUtf8((AbstractByteBuf) buf, seq, len);
+                AbstractByteBuf byteBuf = (AbstractByteBuf) buf;
+                int written = writeUtf8(byteBuf, byteBuf.writerIndex, seq, len);
+                byteBuf.writerIndex += written;
+                return written;
             } else if (buf instanceof WrappedByteBuf) {
                 // Unwrap as the wrapped buffer may be an AbstractByteBuf and so we can use fast-path.
                 buf = buf.unwrap();
@@ -395,9 +398,8 @@ public final class ByteBufUtil {
     }
 
     // Fast-Path implementation
-    private static int writeUtf8(AbstractByteBuf buffer, CharSequence seq, int len) {
-        int oldWriterIndex = buffer.writerIndex;
-        int writerIndex = oldWriterIndex;
+    static int writeUtf8(AbstractByteBuf buffer, int writerIndex, CharSequence seq, int len) {
+        int oldWriterIndex = writerIndex;
 
         // We can use the _set methods as these not need to do any index checks and reference checks.
         // This is possible as we called ensureWritable(...) before.
@@ -441,7 +443,6 @@ public final class ByteBufUtil {
             }
         }
         // update the writerIndex without any extra checks for performance reasons
-        buffer.writerIndex = writerIndex;
         return writerIndex - oldWriterIndex;
     }
 
@@ -483,8 +484,10 @@ public final class ByteBufUtil {
         } else {
             for (;;) {
                 if (buf instanceof AbstractByteBuf) {
-                    writeAscii((AbstractByteBuf) buf, seq, len);
-                    break;
+                    AbstractByteBuf byteBuf = (AbstractByteBuf) buf;
+                    int written = writeAscii(byteBuf, byteBuf.writerIndex, seq, len);
+                    byteBuf.writerIndex += written;
+                    return written;
                 } else if (buf instanceof WrappedByteBuf) {
                     // Unwrap as the wrapped buffer may be an AbstractByteBuf and so we can use fast-path.
                     buf = buf.unwrap();
@@ -497,16 +500,14 @@ public final class ByteBufUtil {
     }
 
     // Fast-Path implementation
-    private static void writeAscii(AbstractByteBuf buffer, CharSequence seq, int len) {
-        int writerIndex = buffer.writerIndex;
+    static int writeAscii(AbstractByteBuf buffer, int writerIndex, CharSequence seq, int len) {
 
         // We can use the _set methods as these not need to do any index checks and reference checks.
         // This is possible as we called ensureWritable(...) before.
         for (int i = 0; i < len; i++) {
             buffer._setByte(writerIndex++, (byte) seq.charAt(i));
         }
-        // update the writerIndex without any extra checks for performance reasons
-        buffer.writerIndex = writerIndex;
+        return len;
     }
 
     /**
