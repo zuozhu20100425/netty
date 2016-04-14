@@ -100,7 +100,7 @@ public class DefaultFullBinaryMemcacheResponse extends DefaultBinaryMemcacheResp
         if (extras != null) {
             extras = extras.copy();
         }
-        return new DefaultFullBinaryMemcacheResponse(key, extras, content().copy());
+        return copy(key, extras, content().copy());
     }
 
     @Override
@@ -113,6 +113,36 @@ public class DefaultFullBinaryMemcacheResponse extends DefaultBinaryMemcacheResp
         if (extras != null) {
             extras = extras.duplicate();
         }
-        return new DefaultFullBinaryMemcacheResponse(key, extras, content().duplicate());
+        return copy(key, extras, content().duplicate());
+    }
+
+    @Override
+    public FullBinaryMemcacheResponse retainedDuplicate() {
+        ByteBuf key = key();
+        if (key != null) {
+            key = key.retainedDuplicate();
+        }
+        ByteBuf extras = extras();
+        if (extras != null) {
+            extras = extras.retainedDuplicate();
+        }
+        return copy(key, extras, content().retainedDuplicate());
+    }
+
+    @Override
+    public FullBinaryMemcacheResponse replace(ByteBuf content) {
+        ByteBuf key = key();
+        if (key != null) {
+            key = key.retainedDuplicate();
+        }
+        ByteBuf extras = extras();
+        if (extras != null) {
+            extras = extras.retainedDuplicate();
+        }
+        return copy(key, extras, content);
+    }
+
+    private static FullBinaryMemcacheResponse copy(ByteBuf key, ByteBuf extras, ByteBuf content) {
+        return new DefaultFullBinaryMemcacheResponse(key, extras, content);
     }
 }

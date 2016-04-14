@@ -74,22 +74,34 @@ public class AbstractMemoryHttpDataTest {
 
         @Override
         public InterfaceHttpData.HttpDataType getHttpDataType() {
-            throw new UnsupportedOperationException("Should never be called.");
+            reject();
+            return null;
         }
 
         @Override
         public HttpData copy() {
-            throw new UnsupportedOperationException("Should never be called.");
+            return reject();
         }
 
         @Override
         public HttpData duplicate() {
-            throw new UnsupportedOperationException("Should never be called.");
+            return reject();
+        }
+
+        @Override
+        public HttpData retainedDuplicate() {
+            return reject();
+        }
+
+        @Override
+        public HttpData replace(ByteBuf content) {
+            return null;
         }
 
         @Override
         public int compareTo(InterfaceHttpData o) {
-            throw new UnsupportedOperationException("Should never be called.");
+            reject();
+            return 0;
         }
 
         @Override
@@ -100,6 +112,10 @@ public class AbstractMemoryHttpDataTest {
         @Override
         public boolean equals(Object obj) {
             return super.equals(obj);
+        }
+
+        private static HttpData reject() {
+            throw new UnsupportedOperationException("Should never be called.");
         }
     }
 }

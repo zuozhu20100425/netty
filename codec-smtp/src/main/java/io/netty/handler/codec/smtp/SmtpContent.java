@@ -15,6 +15,7 @@
  */
 package io.netty.handler.codec.smtp;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 
 /**
@@ -29,6 +30,12 @@ public interface SmtpContent extends ByteBufHolder {
 
     @Override
     SmtpContent duplicate();
+
+    @Override
+    SmtpContent retainedDuplicate();
+
+    @Override
+    SmtpContent replace(ByteBuf content);
 
     @Override
     SmtpContent retain();

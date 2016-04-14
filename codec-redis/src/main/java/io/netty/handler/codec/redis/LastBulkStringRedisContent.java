@@ -16,7 +16,6 @@
 package io.netty.handler.codec.redis;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.Unpooled;
 
 /**
@@ -35,17 +34,32 @@ public interface LastBulkStringRedisContent extends BulkStringRedisContent {
         }
 
         @Override
-        public ByteBufHolder copy() {
+        public LastBulkStringRedisContent copy() {
             return this;
         }
 
         @Override
-        public ByteBufHolder retain(int increment) {
+        public LastBulkStringRedisContent duplicate() {
             return this;
         }
 
         @Override
-        public ByteBufHolder retain() {
+        public LastBulkStringRedisContent retainedDuplicate() {
+            return this;
+        }
+
+        @Override
+        public LastBulkStringRedisContent replace(ByteBuf content) {
+            return new DefaultLastBulkStringRedisContent(content);
+        }
+
+        @Override
+        public LastBulkStringRedisContent retain(int increment) {
+            return this;
+        }
+
+        @Override
+        public LastBulkStringRedisContent retain() {
             return this;
         }
 
@@ -55,12 +69,12 @@ public interface LastBulkStringRedisContent extends BulkStringRedisContent {
         }
 
         @Override
-        public ByteBufHolder touch() {
+        public LastBulkStringRedisContent touch() {
             return this;
         }
 
         @Override
-        public ByteBufHolder touch(Object hint) {
+        public LastBulkStringRedisContent touch(Object hint) {
             return this;
         }
 
@@ -73,10 +87,29 @@ public interface LastBulkStringRedisContent extends BulkStringRedisContent {
         public boolean release(int decrement) {
             return false;
         }
-
-        @Override
-        public ByteBufHolder duplicate() {
-            return this;
-        }
     };
+
+    @Override
+    LastBulkStringRedisContent copy();
+
+    @Override
+    LastBulkStringRedisContent duplicate();
+
+    @Override
+    LastBulkStringRedisContent retainedDuplicate();
+
+    @Override
+    LastBulkStringRedisContent replace(ByteBuf content);
+
+    @Override
+    LastBulkStringRedisContent retain();
+
+    @Override
+    LastBulkStringRedisContent retain(int increment);
+
+    @Override
+    LastBulkStringRedisContent touch();
+
+    @Override
+    LastBulkStringRedisContent touch(Object hint);
 }
